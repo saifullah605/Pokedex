@@ -10,5 +10,5 @@ func main() {
 }
 
 func cleanInput(text string) []string {
-	return strings.Split(strings.ToLower(text), " ")
+	return strings.Fields(strings.ToLower(text))
 }
