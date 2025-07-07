@@ -30,7 +30,18 @@ func replStart() {
 		input := scanner.Text()
 
 		cleaned := cleanInput(input)
-		fmt.Println("Your command was: " + cleaned[0])
+		cmd, ok := getCommands()[cleaned[0]]
+
+		if !ok {
+			fmt.Println("Unknown Command")
+			continue
+		} else {
+			err := cmd.callback()
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
+		}
 
 	}
 
