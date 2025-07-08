@@ -21,7 +21,7 @@ var LocationsData = struct {
 
 func generalRequest[T any](url string, buffer *T) error {
 
-	res, err := http.Get(LocationsData.locationsEndpoint)
+	res, err := http.Get(url)
 	if err != nil {
 		return err
 	}
