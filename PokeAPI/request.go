@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-const BASEURL string = "https://pokeapi.co/api/v2/location-area/"
+const BASELOCATIONS string = "https://pokeapi.co/api/v2/location-area/"
 
 var ErrorBackPage = errors.New("you are on the backpage")
 var ErrorPageFront = errors.New("you are on the front page")
 
-var LocationsData = struct {
+var locationsData = struct {
 	locationsEndpoint     string
-	PrevLocationsEndpoint *string
+	prevLocationsEndpoint *string
 }{
-	locationsEndpoint:     BASEURL,
-	PrevLocationsEndpoint: nil,
+	locationsEndpoint:     BASELOCATIONS,
+	prevLocationsEndpoint: nil,
 }
 
 func generalRequest[T any](url string, buffer *T) error {
@@ -24,6 +24,12 @@ func generalRequest[T any](url string, buffer *T) error {
 	res, err := http.Get(url)
 	if err != nil {
 		return err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return errors.New("bad status code: " + res.Status)
 	}
 
 	decoder := json.NewDecoder(res.Body)
@@ -36,18 +42,18 @@ func generalRequest[T any](url string, buffer *T) error {
 }
 
 func MapRequest() (locations, error) {
-	if LocationsData.locationsEndpoint != "" {
+	if locationsData.locationsEndpoint != "" {
 		var data locations
-		if err := generalRequest(LocationsData.locationsEndpoint, &data); err != nil {
+		if err := generalRequest(locationsData.locationsEndpoint, &data); err != nil {
 			return locations{}, err
 		}
 
-		*(LocationsData.PrevLocationsEndpoint) = LocationsData.locationsEndpoint
+		locationsData.prevLocationsEndpoint = data.Prev
 
 		if data.Next == nil {
-			LocationsData.locationsEndpoint = ""
+			locationsData.locationsEndpoint = ""
 		} else {
-			LocationsData.locationsEndpoint = *data.Next
+			locationsData.locationsEndpoint = *data.Next
 		}
 
 		return data, nil
@@ -55,5 +61,20 @@ func MapRequest() (locations, error) {
 	}
 
 	return locations{}, ErrorBackPage
+
+}
+
+func PrevMapRequest() (locations, error) {
+	if locationsData.prevLocationsEndpoint == nil {
+		return locations{}, ErrorPageFront
+	}
+
+	var data locations
+	if err := generalRequest(*locationsData.prevLocationsEndpoint, &data); err != nil {
+		return locations{}, err
+	}
+	locationsData.locationsEndpoint = *locationsData.prevLocationsEndpoint
+	locationsData.prevLocationsEndpoint = data.Prev
+	return data, nil
 
 }

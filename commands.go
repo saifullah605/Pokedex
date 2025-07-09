@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	pokeapi "github.com/saifullah605/Pokedex/PokeAPI"
 )
 
 type cliCommand struct {
@@ -29,9 +31,37 @@ func commandHelp() error {
 
 }
 
+func commandMap() error {
+	locations, err := pokeapi.MapRequest()
+	if err != nil {
+		return err
+	}
+
+	for _, location := range locations.Results {
+		fmt.Println(location.Name)
+	}
+	return nil
+
+}
+
+func commandMapb() error {
+	locations, err := pokeapi.PrevMapRequest()
+
+	if err != nil {
+		return err
+	}
+
+	for _, location := range locations.Results {
+		fmt.Println(location.Name)
+	}
+	return nil
+}
+
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {"exit", "Exit the Pokedex", commandExit},
 		"help": {"help", "Displays a help message", commandHelp},
+		"map":  {"map", "Display 20 loactions", commandMap},
+		"mapb": {"mapb", "Displays the previous 20 locations", commandMapb},
 	}
 }
