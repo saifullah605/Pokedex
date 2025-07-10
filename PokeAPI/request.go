@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
 )
 
 const BASELOCATIONS string = "https://pokeapi.co/api/v2/location-area/"
