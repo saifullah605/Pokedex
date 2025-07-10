@@ -11,8 +11,10 @@ import (
 )
 
 const BASELOCATIONS string = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
+const BASELOCATIONAREA string = "https://pokeapi.co/api/v2/location-area/"
 
-var locationCache = pokecache.NewCache(10 * time.Minute)
+var mapLocationCache = pokecache.NewCache(10 * time.Minute)
+var locationCache = pokecache.NewCache(24 * time.Hour)
 
 var ErrorBackPage = errors.New("you are on the backpage")
 var ErrorPageFront = errors.New("you are on the front page")
@@ -50,7 +52,7 @@ func generalRequest[T any](url string, buffer *T) error {
 func MapRequest() (locations, error) {
 	if locationsData.locationsEndpoint != "" {
 
-		if cacheData, hit := locationCache.Get(locationsData.locationsEndpoint); hit {
+		if cacheData, hit := mapLocationCache.Get(locationsData.locationsEndpoint); hit {
 			locCached := cacheData.(locations)
 			fmt.Println("CACHED")
 			locationsData.locationsEndpoint = *locCached.Next
@@ -64,7 +66,7 @@ func MapRequest() (locations, error) {
 		}
 
 		locationsData.prevLocationsEndpoint = data.Prev
-		locationCache.Add(locationsData.locationsEndpoint, data)
+		mapLocationCache.Add(locationsData.locationsEndpoint, data)
 
 		if data.Next == nil {
 			locationsData.locationsEndpoint = ""
@@ -86,10 +88,10 @@ func PrevMapRequest() (locations, error) {
 		return locations{}, ErrorPageFront
 	}
 
-	if cacheData, hit := locationCache.Get(*locationsData.prevLocationsEndpoint); hit {
+	if cacheData, hit := mapLocationCache.Get(*locationsData.prevLocationsEndpoint); hit {
 		locCached := cacheData.(locations)
 		fmt.Println("CACHED")
-		// Set locationsEndpoint to the NEXT page, not the current one
+
 		if locCached.Next != nil {
 			locationsData.locationsEndpoint = *locCached.Next
 		} else {
@@ -100,8 +102,8 @@ func PrevMapRequest() (locations, error) {
 	}
 
 	var data locations
-	locationCache.Add(*locationsData.prevLocationsEndpoint, data)
-	// Set locationsEndpoint to the NEXT page, not the current one
+	mapLocationCache.Add(*locationsData.prevLocationsEndpoint, data)
+
 	if data.Next != nil {
 		locationsData.locationsEndpoint = *data.Next
 	} else {

@@ -8,10 +8,11 @@ import (
 	//pokeapi "github.com/saifullah605/Pokedex/PokeAPI"
 )
 
+var cleaned []string
+
 func main() {
 
 	replStart()
-	
 
 }
 
@@ -32,7 +33,7 @@ func replStart() {
 
 		input := scanner.Text()
 
-		cleaned := cleanInput(input)
+		cleaned = cleanInput(input)
 		cmd, ok := getCommands()[cleaned[0]]
 
 		if !ok {
