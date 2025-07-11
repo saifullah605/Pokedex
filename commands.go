@@ -65,8 +65,9 @@ func commandExplore() error {
 
 	hyphenated := stringHyphenated(cleaned[1:])
 	areaData, err := pokeapi.ExploreRequest(hyphenated)
+
 	if err != nil {
-		return nil
+		return err
 	}
 
 	fmt.Println("Exploring " + hyphenated + "...")

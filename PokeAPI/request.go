@@ -36,6 +36,10 @@ func generalRequest[T any](url string, buffer *T) error {
 
 	defer res.Body.Close()
 
+	if res.StatusCode == 404 {
+		return errors.New("request not found, possible area/pokemon does not exist")
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return errors.New("bad status code: " + res.Status)
 	}
@@ -127,11 +131,7 @@ func ExploreRequest(location string) (area, error) {
 
 	var data area
 	if err := generalRequest(fullURL, &data); err != nil {
-		return area{}, nil
-	}
-
-	if len(data.PokemonEncounters) == 0 {
-		return area{}, errors.New("area does not exist")
+		return area{}, err
 	}
 
 	areaCache.Add(fullURL, data)
