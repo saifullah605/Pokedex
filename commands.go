@@ -59,7 +59,21 @@ func commandMapb() error {
 }
 
 func commandExplore() error {
-	fmt.Println(cleaned)
+	if len(cleaned) == 1 {
+		return fmt.Errorf("invalid entry")
+	}
+
+	hyphenated := stringHyphenated(cleaned[1:])
+	areaData, err := pokeapi.ExploreRequest(hyphenated)
+	if err != nil {
+		return nil
+	}
+
+	fmt.Println("Exploring " + hyphenated + "...")
+
+	for _, encounter := range areaData.PokemonEncounters {
+		fmt.Println("- " + encounter.Pokemon.Name)
+	}
 	return nil
 }
 
@@ -71,4 +85,18 @@ func getCommands() map[string]cliCommand {
 		"mapb":    {"mapb", "Displays the previous 20 locations", commandMapb},
 		"explore": {"explore", "Display diffrent pokemon with a area input example: explore canalave city", commandExplore},
 	}
+}
+
+func stringHyphenated(words []string) string {
+	properString := ""
+	for i, word := range words {
+		if i < len(words)-1 {
+			properString += word + "-"
+		} else {
+			properString += word
+		}
+
+	}
+	return properString
+
 }

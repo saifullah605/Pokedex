@@ -14,7 +14,7 @@ const BASELOCATIONS string = "https://pokeapi.co/api/v2/location-area/?offset=0&
 const BASELOCATIONAREA string = "https://pokeapi.co/api/v2/location-area/"
 
 var mapLocationCache = pokecache.NewCache(10 * time.Minute)
-var locationCache = pokecache.NewCache(24 * time.Hour)
+var areaCache = pokecache.NewCache(24 * time.Hour)
 
 var ErrorBackPage = errors.New("you are on the backpage")
 var ErrorPageFront = errors.New("you are on the front page")
@@ -102,6 +102,9 @@ func PrevMapRequest() (locations, error) {
 	}
 
 	var data locations
+	if err := generalRequest(locationsData.locationsEndpoint, &data); err != nil {
+		return locations{}, err
+	}
 	mapLocationCache.Add(*locationsData.prevLocationsEndpoint, data)
 
 	if data.Next != nil {
@@ -110,6 +113,28 @@ func PrevMapRequest() (locations, error) {
 		locationsData.locationsEndpoint = ""
 	}
 	locationsData.prevLocationsEndpoint = data.Prev
+	return data, nil
+
+}
+
+func ExploreRequest(location string) (area, error) {
+	fullURL := BASELOCATIONAREA + location
+	if cacheData, hit := areaCache.Get(fullURL); hit {
+		areaCache := cacheData.(area)
+		fmt.Println("CACHED")
+		return areaCache, nil
+	}
+
+	var data area
+	if err := generalRequest(fullURL, &data); err != nil {
+		return area{}, nil
+	}
+
+	if len(data.PokemonEncounters) == 0 {
+		return area{}, errors.New("area does not exist")
+	}
+
+	areaCache.Add(fullURL, data)
 	return data, nil
 
 }
