@@ -37,7 +37,7 @@ func generalRequest[T any](url string, buffer *T) error {
 	defer res.Body.Close()
 
 	if res.StatusCode == 404 {
-		return errors.New("request not found, possible area/pokemon does not exist")
+		return errors.New("request not found, possible area/pokemon does not exist or mistyped")
 	}
 
 	if res.StatusCode != http.StatusOK {
