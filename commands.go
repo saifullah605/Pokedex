@@ -113,6 +113,42 @@ func commandCatch() error {
 
 }
 
+func commandInspect() error {
+	if len(cleaned) == 1 {
+		return fmt.Errorf("invalid entry")
+	}
+
+	pokemon, valid := Pokedex[cleaned[1]]
+
+	if !valid {
+		return fmt.Errorf("you have not caught that pokemon")
+	}
+
+	fmt.Println("Name: " + cleaned[1])
+	fmt.Println("Height:", pokemon.Height, "\nWeight:", pokemon.Weight)
+	fmt.Println("Stats")
+	for _, stat := range pokemon.Stats {
+		fmt.Println("\t-", stat.Stat.Name+":", stat.BaseStat)
+	}
+
+	fmt.Println("Types: ")
+	for _, Type := range pokemon.Types {
+		fmt.Println("\t-", Type.Type.Name)
+	}
+
+	return nil
+}
+
+func commandPokedex() error {
+	fmt.Println("Your Pokedex:")
+
+	for name := range Pokedex {
+		fmt.Println("\t-", name)
+	}
+
+	return nil
+}
+
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit":    {"exit", "Exit the Pokedex", commandExit},
@@ -121,6 +157,8 @@ func getCommands() map[string]cliCommand {
 		"mapb":    {"mapb", "Displays the previous 20 locations", commandMapb},
 		"explore": {"explore", "Display diffrent pokemon with a area input example: explore canalave city", commandExplore},
 		"catch":   {"catch", "Try to catch a pokemon, example: catch pidgey", commandCatch},
+		"inspect": {"inspect", "inspect the caught pokemon stats", commandInspect},
+		"pokedex": {"pokedex", "list all caught pokemon", commandPokedex},
 	}
 }
 
