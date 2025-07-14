@@ -12,6 +12,7 @@ import (
 
 const BASELOCATIONS string = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 const BASELOCATIONAREA string = "https://pokeapi.co/api/v2/location-area/"
+const BASEPOKEMON string = "https://pokeapi.co/api/v2/pokemon/"
 
 var mapLocationCache = pokecache.NewCache(10 * time.Minute)
 var areaCache = pokecache.NewCache(24 * time.Hour)
@@ -137,4 +138,15 @@ func ExploreRequest(location string) (area, error) {
 	areaCache.Add(fullURL, data)
 	return data, nil
 
+}
+
+func PokemonRequest(name string) (pokemon, error) {
+	fullURL := BASEPOKEMON + name
+	var data pokemon
+
+	if err := generalRequest(fullURL, &data); err != nil {
+		return pokemon{}, err
+	}
+
+	return data, nil
 }
