@@ -140,12 +140,12 @@ func ExploreRequest(location string) (area, error) {
 
 }
 
-func PokemonRequest(name string) (pokemon, error) {
+func PokemonRequest(name string) (Pokemon, error) {
 	fullURL := BASEPOKEMON + name
-	var data pokemon
+	var data Pokemon
 
 	if err := generalRequest(fullURL, &data); err != nil {
-		return pokemon{}, err
+		return Pokemon{}, err
 	}
 
 	return data, nil

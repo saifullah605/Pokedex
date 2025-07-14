@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
 	pokeapi "github.com/saifullah605/Pokedex/PokeAPI"
 )
@@ -12,6 +14,8 @@ type cliCommand struct {
 	description string
 	callback    func() error
 }
+
+var Pokedex = map[string]pokeapi.Pokemon{}
 
 func commandExit() error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
@@ -78,6 +82,37 @@ func commandExplore() error {
 	return nil
 }
 
+func commandCatch() error {
+	if len(cleaned) == 1 {
+		return fmt.Errorf("invalid entry")
+	}
+
+	pokemon, err := pokeapi.PokemonRequest(cleaned[1])
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Throwing a Pokeball at " + cleaned[1])
+
+	for i := 0; i < 3; i++ {
+		time.Sleep(1 * time.Second)
+		fmt.Print(".")
+	}
+	time.Sleep(1 * time.Second)
+	fmt.Print("\n")
+
+	if isCaught(pokemon.BaseExperience) {
+		Pokedex[cleaned[1]] = pokemon
+		fmt.Println(cleaned[1] + " was caught!")
+	} else {
+		fmt.Println(cleaned[1] + " escaped!")
+	}
+
+	return nil
+
+}
+
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit":    {"exit", "Exit the Pokedex", commandExit},
@@ -85,6 +120,7 @@ func getCommands() map[string]cliCommand {
 		"map":     {"map", "Display 20 loactions", commandMap},
 		"mapb":    {"mapb", "Displays the previous 20 locations", commandMapb},
 		"explore": {"explore", "Display diffrent pokemon with a area input example: explore canalave city", commandExplore},
+		"catch":   {"catch", "Try to catch a pokemon, example: catch pidgey", commandCatch},
 	}
 }
 
@@ -100,4 +136,11 @@ func stringHyphenated(words []string) string {
 	}
 	return properString
 
+}
+
+func isCaught(baseExp int) bool {
+	threshold := 25
+	r := rand.Intn(baseExp + 1)
+
+	return r < threshold
 }

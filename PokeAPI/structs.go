@@ -22,7 +22,7 @@ type area struct {
 	} `json:"pokemon_encounters"`
 }
 
-type pokemon struct {
+type Pokemon struct {
 	BaseExperience int `json:"base_experience"`
 	Height         int `json:"height"`
 	Weight         int `json:"weight"`
